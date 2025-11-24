@@ -24,19 +24,25 @@ def register(request):
 
 
 urlpatterns = [
-    # Django Admin
     path('admin/', admin.site.urls),
+
+    # Root URL
+    path('', home, name='home'),
 
     # Authentication
     path('login/', auth_views.LoginView.as_view(
-        template_name='auth/login.html'
-    ), name='login'),
-    
+        template_name='auth/login.html',
+        authentication_form=LoginForm,
+        redirect_authenticated_user=True
+    ), name='login'),    
     
     path('logout/', auth_views.LogoutView.as_view(
         template_name='auth/login.html'
     ), name='logout'),
+    
+    # Registration
     path('register/', register, name='register'),
+
     # Homepage
     path('home/', home, name='home'),
 
