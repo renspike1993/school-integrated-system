@@ -1,0 +1,81 @@
+{% load custom_filters %}
+{% load static %}
+
+<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
+	<div class="container-fluid">
+		<img src="{% static 'images/moist.png' %}" style ="width:50px">
+		<a class="navbar-brand" href="{% url 'home' %}" >Administrator</a>
+		<button class="navbar-toggler p-0 border-0" type="button" id="navbarSideCollapse"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				
+				{# Registrar main nav link #}
+				{% if user|in_group_or_superuser:"registrar" and "registrar" in request.path %}
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="{% url 'registrar' %}">Registrar's Office</a>
+				</li>
+				{% endif %}
+
+				{# Library main nav links #}
+
+				{% if "library" in request.path %}
+					<li class="nav-item"><a class="nav-link active" href="{% url 'library' %}">Library Management System</a></li>
+				{% endif %}
+
+				<!-- <li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-bs-toggle="dropdown"
+						aria-expanded="false">System Integrations</a>
+					<ul class="dropdown-menu" aria-labelledby="dropdown01">
+						<li><a class="dropdown-item" href="#">Hardware Devices</a></li>
+						<li><a class="dropdown-item" href="#">Software Devices </a></li>
+						<li><a class="dropdown-item" href="{% url 'app3_index' %}">Gates</a></li>
+					</ul>
+				</li> -->
+
+			</ul>
+
+			{% if user.is_authenticated %}
+			<form action="{% url 'logout' %}" method="post" class="d-flex">
+				{% csrf_token %}
+				<button class="btn btn-sm btn-danger" type="submit">Logout</button>
+			</form>
+			{% else %}
+			<a href="{% url 'login' %}" class="btn btn-outline-primary">Login</a>
+			{% endif %}
+		</div>
+	</div>
+</nav>
+
+{# Library secondary nav #}
+
+{% if user|in_group_or_superuser:"library" and "library" in request.path %}
+<div class="nav-scroller bg-body shadow-sm">
+	<nav class="nav nav-underline" aria-label="Secondary navigation">
+		<a class="nav-link active" href="#">Dashboard</a>
+		<a class="nav-link" href="{% url 'opac' %}">OPAC</a>
+		<a class="nav-link" href="{% url 'book_list' %}">All Books</a>
+		<a class="nav-link" href="{% url 'library_students' %}">All Students</a>
+		<a class="nav-link" href="{% url 'borrowed_all' %}">Borrowed Books</a>
+		<a class="nav-link" href="#">Archive Books</a>
+		<a class="nav-link" href="#">Collections</a>
+		<a class="nav-link" href="{% url 'security_logs' %}">Security</a>
+	</nav>
+</div>
+{% endif %}
+
+{# Registrar secondary nav #}
+{% if user|in_group_or_superuser:"registrar" and "registrar" in request.path %}
+<div class="nav-scroller bg-body shadow-sm">
+    <nav class="nav nav-underline" aria-label="Secondary navigation">
+        <a class="nav-link {% if request.path == '/registrar/' %}active{% endif %}" href="#">Dashboard</a>
+        <a class="nav-link {% if '/registrar/folders' in request.path %}active{% endif %}" href="{% url 'folder_list' %}">Data Center</a>
+        <a class="nav-link {% if '/registrar/students' in request.path %}active{% endif %}" href="{% url 'student_list' %}">Students</a>
+        <a class="nav-link {% if '/registrar/kiosk' in request.path %}active{% endif %}" href="#">Kiosk</a>
+    </nav>
+</div>
+{% endif %}
+

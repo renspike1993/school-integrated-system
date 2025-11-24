@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl shadow p-5 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Total Books</h3>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_books }}</p>
+                </div>
+                <div class="bg-accent-100 p-3 rounded-full">
+                    <i class="fas fa-book text-accent-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Total Barcodes</h3>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_barcodes }}</p>
+                </div>
+                <div class="bg-accent-100 p-3 rounded-full">
+                    <i class="fas fa-barcode text-accent-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Students</h3>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_students }}</p>
+                </div>
+                <div class="bg-accent-100 p-3 rounded-full">
+                    <i class="fas fa-user-graduate text-accent-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5 flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Collections</h3>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_collections }}</p>
+                </div>
+                <div class="bg-accent-100 p-3 rounded-full">
+                    <i class="fas fa-layer-group text-accent-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Borrow Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="bg-white rounded-xl shadow p-5 flex flex-col items-center">
+            <h3 class="text-sm font-medium text-gray-500">Borrowed</h3>
+            <p class="text-2xl font-semibold text-blue-600">{{ borrowed_count }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-5 flex flex-col items-center">
+            <h3 class="text-sm font-medium text-gray-500">Returned</h3>
+            <p class="text-2xl font-semibold text-green-600">{{ returned_count }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-5 flex flex-col items-center">
+            <h3 class="text-sm font-medium text-gray-500">Overdue</h3>
+            <p class="text-2xl font-semibold text-red-600">{{ overdue_count }}</p>
+        </div>
+    </div>
+
+    <!-- Recent Books Added -->
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-200 bg-gray-50">
+            <h2 class="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+                <i class="fas fa-book text-accent-500"></i>
+                <span>New Arrival</span>
+            </h2>
+        </div>
+        {% if recent_books %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Title</th>
+                        <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Author</th>
+                        <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Added</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for book in recent_books %}
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="px-4 py-2">{{ book.title }}</td>
+                        <td class="px-4 py-2">{{ book.author }}</td>
+                        <td class="px-4 py-2 text-gray-500">{{ book.created_at|date:"M j, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-gray-500">No recent books added.</div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Borrowed Books -->
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-200 bg-gray-50">
+            <h2 class="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+                <i class="fas fa-book-reader text-accent-500"></i>
+                <span>Recently Borrowed Books</span>
+            </h2>
+        </div>
+        {% if recent_borrowed %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Book</th>
+                        <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Borrower</th>
+                        <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Barcode</th>
+                        <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Date Borrowed</th>
+                        <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for record in recent_borrowed %}
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="px-4 py-2">{{ record.book.title }}</td>
+                        <td class="px-4 py-2">{{ record.borrower.first_name }} {{ record.borrower.last_name }}</td>
+                        <td class="px-4 py-2 font-mono">{{ record.barcode.barcode }}</td>
+                        <td class="px-4 py-2">{{ record.date_borrowed|date:"M j, Y H:i" }}</td>
+                        <td class="px-4 py-2">
+                            {% if record.status == 'overdue' %}
+                                <span class="text-red-600 font-semibold">{{ record.status|capfirst }}</span>
+                            {% elif record.status == 'returned' %}
+                                <span class="text-green-600 font-semibold">{{ record.status|capfirst }}</span>
+                            {% else %}
+                                <span class="text-blue-600 font-semibold">{{ record.status|capfirst }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4 text-gray-500">No recent borrowed books.</div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

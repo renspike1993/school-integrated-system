@@ -1,0 +1,109 @@
+{% extends 'base.html' %} {% block title %}Student Details{% endblock %} {% block content %} {% load custom_filters %}
+
+<!-- Header -->
+<div class="flex items-center p-3 my-3 text-white bg-purple-600 rounded-md shadow">
+	<i class="fas fa-user text-3xl mr-3"></i>
+	<div>
+		<h1 class="text-base font-semibold leading-tight">Student Details</h1>
+		<small class="text-purple-200 text-xs">{{ student.first_name }} {{ student.last_name }}</small>
+	</div>
+</div>
+
+<!-- Main Card -->
+<div class="bg-white shadow rounded-lg p-5">
+	<!-- Student Info -->
+	<div class="border border-gray-200 rounded-md p-4 mb-5">
+		<h2 class="text-base font-semibold mb-3 text-gray-700">Student Information</h2>
+
+		<div class="space-y-1.5 text-gray-700 text-sm">
+			<p>
+				<strong>Folder:</strong>
+				{% if student.folder %} {{ student.folder.folder_name }} (ID: {{ student.folder.id }}) {% else %}
+				<span class="text-gray-400">None</span>
+				{% endif %}
+			</p>
+
+			<p><strong>Last Name:</strong> {{ student.last_name }}</p>
+			<p><strong>First Name:</strong> {{ student.first_name }}</p>
+			<p><strong>Middle Name:</strong> {{ student.middle_name }}</p>
+			<p><strong>Gender:</strong> {{ student.get_gender_display }}</p>
+			<p><strong>Mobile Number:</strong> {{ student.mobile_number }}</p>
+		</div>
+	</div>
+
+	<!-- Action Buttons -->
+	<div class="flex justify-end mb-5">
+		<div class="flex flex-wrap gap-2.5">
+			<a href="{% url 'student_list' %}" class="px-3 py-1.5 bg-gray-500 text-white rounded hover:bg-gray-600 text-xs flex items-center"> <i class="fas fa-arrow-left mr-1.5 text-xs"></i> Back </a>
+
+            {% if user|in_group_or_superuser:"library" %}
+			<a href="{% url 'borrow_book_list' student.id %}" class="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs flex items-center"> <i class="fas fa-book-reader mr-1.5 text-xs"></i> Borrow Books </a>
+			{% endif %}
+
+			<a href="{% url 'student_update' student.id %}" class="px-3 py-1.5 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-xs flex items-center"> <i class="fas fa-edit mr-1.5 text-xs"></i> Edit </a>
+
+			<a href="{% url 'student_delete' student.id %}" class="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 text-xs flex items-center"> <i class="fas fa-trash mr-1.5 text-xs"></i> Delete </a>
+
+		</div>
+	</div>
+
+	<!-- Borrowed Books -->
+	<h2 class="text-base font-semibold text-gray-700 mb-2.5">Borrowed Books</h2>
+
+	{% if borrowed_books %}
+	<div class="overflow-x-auto">
+		<table class="min-w-full divide-y divide-gray-300 text-sm">
+			<thead class="bg-gray-100">
+				<tr>
+					<th class="px-3 py-2 text-left font-semibold text-gray-700 uppercase text-[10px]">Book</th>
+					<th class="px-3 py-2 text-left font-semibold text-gray-700 uppercase text-[10px]">Barcode</th>
+					<th class="px-3 py-2 text-left font-semibold text-gray-700 uppercase text-[10px]">Borrowed</th>
+					<th class="px-3 py-2 text-left font-semibold text-gray-700 uppercase text-[10px]">Due</th>
+					<th class="px-3 py-2 text-left font-semibold text-gray-700 uppercase text-[10px]">Status</th>
+					<th class="px-3 py-2 text-left font-semibold text-gray-700 uppercase text-[10px]">Action</th>
+				</tr>
+			</thead>
+
+			<tbody class="divide-y divide-gray-200 bg-white">
+				{% for b in borrowed_books %}
+				<tr>
+					<td class="px-3 py-2">{{ b.book.title }}</td>
+
+					<td class="px-3 py-2">
+						{% if b.barcode %}
+						<span class="font-medium">{{ b.barcode.barcode }}</span>
+						{% else %}
+						<span class="text-gray-400 text-xs">N/A</span>
+						{% endif %}
+					</td>
+
+					<td class="px-3 py-2">{{ b.date_borrowed|date:"Y-m-d H:i" }}</td>
+					<td class="px-3 py-2">{{ b.due_date|date:"Y-m-d" }}</td>
+
+					<td class="px-3 py-2">
+						{% if b.status == "borrowed" %}
+						<span class="px-2 py-0.5 bg-yellow-300 text-yellow-800 rounded text-[10px] font-semibold"> Borrowed </span>
+						{% else %}
+						<span class="px-2 py-0.5 bg-green-500 text-white rounded text-[10px] font-semibold"> Returned </span>
+						{% endif %}
+					</td>
+
+					<td class="px-3 py-2">
+						{% if b.status == 'borrowed' %}
+						<a href="{% url 'return_book' b.id %}" class="px-2 py-0.5 bg-green-600 text-white rounded hover:bg-green-700 text-[10px]"> Return </a>
+						{% else %}
+						<span class="text-gray-400 text-[10px]">Returned</span>
+						{% endif %}
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	{% else %}
+	<p class="text-gray-500 text-sm">No borrowed books.</p>
+	{% endif %}
+</div>
+
+{% endblock %}

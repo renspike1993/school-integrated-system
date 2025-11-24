@@ -1,0 +1,114 @@
+{% extends "base.html" %} {% block title %}All Borrowed Books{% endblock %} {% block content %}
+
+<!-- Table Card -->
+<div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+	<!-- Table Header -->
+	<div class="px-5 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+		<h2 class="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+			<i class="fas fa-book text-accent-500"></i>
+			<span>All Borrowed Books</span>
+		</h2>
+
+		<div class="flex items-center space-x-2">
+			<!-- Filter Buttons -->
+			<div class="space-x-2">
+				<a href="{% url 'all_books_borrow_history' %}?status=borrowed" class="px-3 py-1 rounded text-sm font-medium {% if status_filter == 'borrowed' %}bg-yellow-600 text-white{% else %}bg-gray-100 text-gray-700{% endif %}">Borrowed</a>
+				<a href="{% url 'all_books_borrow_history' %}?status=returned" class="px-3 py-1 rounded text-sm font-medium {% if status_filter == 'returned' %}bg-green-600 text-white{% else %}bg-gray-100 text-gray-700{% endif %}">Returned</a>
+				<a href="{% url 'all_books_borrow_history' %}?status=overdue" class="px-3 py-1 rounded text-sm font-medium {% if status_filter == 'overdue' %}bg-red-600 text-white{% else %}bg-gray-100 text-gray-700{% endif %}">Overdue</a>
+				<a href="{% url 'all_books_borrow_history' %}" class="px-3 py-1 rounded text-sm font-medium {% if not status_filter %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700{% endif %}"> All </a>
+			</div>
+
+			<!-- Search Form -->
+			<form method="get" class="ml-4">
+				<input type="text" name="q" value="{{ q|default:'' }}" placeholder="Search..." class="px-2 py-1 border rounded text-sm" />
+				{% if status_filter %}
+				<input type="hidden" name="status" value="{{ status_filter }}" />
+				{% endif %}
+				<button type="submit" class="px-2 py-1 bg-accent-500 text-white rounded text-sm">Search</button>
+			</form>
+		</div>
+	</div>
+
+	{% if page_obj %}
+	<!-- Table -->
+	<div class="overflow-x-auto">
+		<table class="w-full text-sm">
+			<thead class="bg-gray-50 border-b border-gray-200">
+				<tr>
+					<th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Book</th>
+					<th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Barcode</th>
+					<th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Borrower</th>
+					<th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Borrowed</th>
+					<th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Due</th>
+					<th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Returned</th>
+					<th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Status</th>
+					<th class="px-4 py-2"></th>
+				</tr>
+			</thead>
+			<tbody class="divide-y divide-gray-200">
+				{% for record in page_obj %}
+				<tr class="hover:bg-gray-50 transition-colors duration-150 group">
+					<td class="px-4 py-2">
+						<div class="flex items-center gap-2">
+							<div class="w-6 h-6 bg-accent-100 rounded flex items-center justify-center">
+								<i class="fas fa-book text-accent-600 text-xs"></i>
+							</div>
+							<span class="font-medium text-gray-900 truncate">{{ record.book.title }}</span>
+						</div>
+					</td>
+					<td class="px-4 py-2 font-mono bg-gray-100 px-2 py-1 rounded">{{ record.barcode.barcode }}</td>
+					<td class="px-4 py-2 truncate">{{ record.borrower.first_name }} {{ record.borrower.last_name }}</td>
+					<td class="px-4 py-2">{{ record.date_borrowed|date:"M j, Y" }}</td>
+					<td class="px-4 py-2">{{ record.due_date|date:"M j, Y" }}</td>
+					<td class="px-4 py-2">{% if record.date_returned %} {{ record.date_returned|date:"M j, Y" }} {% else %} - {% endif %}</td>
+					<td class="px-4 py-2">
+						{% if record.status == 'overdue' %}
+						<span class="px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700 font-semibold">{{ record.status|capfirst }}</span>
+						{% elif record.status == 'returned' %}
+						<span class="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 font-semibold">{{ record.status|capfirst }}</span>
+						{% else %}
+						<span class="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700 font-semibold">{{ record.status|capfirst }}</span>
+						{% endif %}
+					</td>
+					<td class="px-4 py-2 text-right opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+						{% if record.status == 'borrowed' %}
+						<a href="{% url 'return_book' record.id %}" class="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"> Return </a>
+						{% else %}
+						<span class="px-2 py-1 text-xs bg-gray-300 text-gray-600 rounded cursor-not-allowed">Returned</span>
+						{% endif %}
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Pagination -->
+	<div class="px-4 py-3 flex justify-between items-center border-t border-gray-200">
+		<span class="text-sm text-gray-700">Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} records</span>
+		<div class="space-x-1">
+			{% if page_obj.has_previous %}
+			<a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-2 py-1 border rounded text-sm">Prev</a>
+			{% endif %} {% for num in page_obj.paginator.page_range %} {% if page_obj.number == num %}
+			<span class="px-2 py-1 border rounded bg-gray-200 text-sm">{{ num }}</span>
+			{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+			<a href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-2 py-1 border rounded text-sm">{{ num }}</a>
+			{% endif %} {% endfor %} {% if page_obj.has_next %}
+			<a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="px-2 py-1 border rounded text-sm">Next</a>
+			{% endif %}
+		</div>
+	</div>
+
+	{% else %}
+	<!-- Empty State -->
+	<div class="text-center py-16">
+		<div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+			<i class="fas fa-book-open text-gray-400 text-2xl"></i>
+		</div>
+		<h3 class="text-lg font-semibold text-gray-900 mb-2">No borrow records found</h3>
+		<p class="text-gray-600 mb-4 text-sm">No books have been borrowed yet.</p>
+	</div>
+	{% endif %}
+</div>
+
+{% endblock %}

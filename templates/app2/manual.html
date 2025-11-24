@@ -1,0 +1,166 @@
+{% extends "base.html" %} {% block title %}System Manual – Permissions{% endblock %} {% block content %} {% load static %}
+
+<div class="max-w-4xl mx-auto mt-10 space-y-8">
+	<!-- Page Header -->
+	<div class="text-center">
+		<h1 class="text-3xl font-bold text-gray-900">📘 MOIST Library System Manual</h1>
+		<p class="text-gray-600 mt-1 text-sm">Complete list of roles and what they can do in the system.</p>
+	</div>
+	<!-- OPAC GUIDE -->
+	<div class="bg-white rounded-xl shadow p-6 border border-gray-200">
+		<h2 class="text-2xl font-bold text-blue-700 flex items-center gap-2 mb-6"><i class="fas fa-tablet-alt"></i> Online Public Access Catalog (OPAC)</h2>
+
+		<!-- Step-by-step -->
+		<div class="space-y-4">
+			<!-- Step 1 -->
+			<div class="flex items-center gap-4 mb-3">
+				<button onclick="openVideo('step1.mp4')" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm flex items-center gap-2 hover:bg-blue-700 shadow"><i class="fas fa-play-circle"></i> Step 1</button>
+				<p class="text-gray-700 text-sm flex-1">Proceed to the library kiosk located at the central area of the library.</p>
+			</div>
+
+			<!-- Step 2 -->
+			<div class="flex items-center gap-4 mb-3">
+				<button onclick="openVideo('step1.mp4')" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm flex items-center gap-2 hover:bg-blue-700 shadow"><i class="fas fa-play-circle"></i> Step 2</button>
+				<p class="text-gray-700 text-sm flex-1">Search for the book you intend to borrow using the Online Public Access Catalog (OPAC)</p>
+			</div>
+
+			<!-- Step 3 -->
+			<div class="flex items-center gap-4 mb-3">
+				<button onclick="openVideo('step1.mp4')" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm flex items-center gap-2 hover:bg-blue-700 shadow"><i class="fas fa-play-circle"></i> Step 3</button>
+				<p class="text-gray-700 text-sm flex-1">Select the desired book and click <span class="font-medium">"Reserve"</span>.</p>
+			</div>
+
+			<!-- Step 4 -->
+			<div class="flex items-center gap-4 mb-3">
+				<button onclick="openVideo('step1.mp4')" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm flex items-center gap-2 hover:bg-blue-700 shadow"><i class="fas fa-play-circle"></i> Step 4</button>
+				<p class="text-gray-700 text-sm flex-1">After selecting all intended books, click <span class="font-medium">"Confirm"</span>.</p>
+			</div>
+
+			<!-- Step 5 -->
+			<div class="flex items-center gap-4 mb-3">
+				<button onclick="openVideo('step1.mp4')" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm flex items-center gap-2 hover:bg-blue-700 shadow"><i class="fas fa-play-circle"></i> Step 5</button>
+				<p class="text-gray-700 text-sm flex-1">Authenticate your reservation by scanning the QR code on your ID or by entering your student code manually.</p>
+			</div>
+
+			<!-- Step 6 -->
+			<div class="flex items-center gap-4 mb-3">
+				<button onclick="openVideo('step1.mp4')" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm flex items-center gap-2 hover:bg-blue-700 shadow"><i class="fas fa-play-circle"></i> Step 6</button>
+				<p class="text-gray-700 text-sm flex-1">Proceed to the library front desk for verification, validation, and to sign the agreement form.</p>
+			</div>
+
+			<!-- Step 7 -->
+			<div class="flex items-center gap-4 mb-3">
+				<button onclick="openVideo('step1.mp4')" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm flex items-center gap-2 hover:bg-blue-700 shadow"><i class="fas fa-play-circle"></i> Step 7</button>
+				<p class="text-gray-700 text-sm flex-1">Once verified, you may successfully check out the reserved book(s).</p>
+			</div>
+
+
+			<!-- Step 7 -->
+			<div class="flex items-center gap-4 mb-3">
+				<button onclick="openVideo('step1.mp4')" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm flex items-center gap-2 hover:bg-blue-700 shadow"><i class="fas fa-play-circle"></i> Step 8</button>
+				<p class="text-gray-700 text-sm flex-1">Returned borrowed books by presenting your ID at library front desk for validation of returned books.</p>
+			</div>
+
+
+
+            <!-- Divider -->
+			<div class="border-t border-gray-300 my-4"></div>
+
+			<!-- Note -->
+			<div class="bg-red-50 border border-red-200 rounded-lg p-4">
+				<p class="text-red-700 text-sm font-semibold">Important Note</p>
+				<p class="text-gray-700 text-sm mt-1">You will receive an SMS reminder <strong>1 hour before</strong> the due date. A penalty of <strong>₱30 per day</strong> applies for overdue books.</p>
+			</div>
+
+			<!-- Fullscreen Video Modal -->
+			<div id="videoModal" class="fixed inset-0 bg-black bg-opacity-80 hidden z-50 flex items-center justify-center">
+				<div class="relative w-full max-w-4xl mx-4">
+					<button onclick="closeVideo()" class="absolute top-2 right-2 text-white text-2xl z-50">&times;</button>
+					<video id="tutorialVideo" class="w-full h-auto rounded-lg shadow-lg" controls></video>
+				</div>
+			</div>
+
+			<script>
+				function openVideo(src) {
+					const modal = document.getElementById("videoModal");
+					const video = document.getElementById("tutorialVideo");
+					video.src = "{% static 'videos/' %}" + src; // Adjust path to your static videos
+					modal.classList.remove("hidden");
+					video.play();
+				}
+
+				function closeVideo() {
+					const modal = document.getElementById("videoModal");
+					const video = document.getElementById("tutorialVideo");
+					video.pause();
+					video.currentTime = 0;
+					modal.classList.add("hidden");
+				}
+			</script>
+		</div>
+	</div>
+
+	<!-- ADMIN -->
+	<div class="bg-white rounded-lg shadow p-6">
+		<h2 class="text-xl font-bold text-blue-700 flex items-center gap-2 mb-4"><i class="fas fa-user-shield"></i> Books Data Encoder (Vince Gacus)</h2>
+
+		<ul class="space-y-2 text-gray-700 text-sm">
+			<li>✔ Full access to **all modules**</li>
+			<li>✔ Manage students (create, edit, delete)</li>
+			<li>✔ Manage books (create, update, delete)</li>
+			<li>✔ Add / delete book copies</li>
+			<li>✔ Manage borrowing and returning</li>
+			<li>✔ View complete borrower history</li>
+			<li>✔ Override overdue or damaged status</li>
+			<li>✔ Access settings & configurations</li>
+			<li>✔ View system logs</li>
+		</ul>
+	</div>
+
+	<!-- LIBRARIAN -->
+	<div class="bg-white rounded-lg shadow p-6">
+		<h2 class="text-xl font-bold text-blue-700 flex items-center gap-2 mb-4"><i class="fas fa-user-shield"></i> Books Transaction Encoder (Maria Olmo)</h2>
+
+		<ul class="space-y-2 text-gray-700 text-sm">
+			<li>✔ View all books & copies</li>
+			<li>✔ Add new book copies</li>
+			<li>✔ Process borrowing & returning</li>
+			<li>✔ Mark overdue books</li>
+			<li>✔ Edit book information</li>
+			<li>✔ View borrower history per book</li>
+			<li>✖ Cannot delete books</li>
+			<li>✖ Cannot access system settings</li>
+		</ul>
+	</div>
+
+	<!-- USER ROLES -->
+	<div class="bg-white rounded-lg shadow p-6">
+		<h1 class="text-2xl font-semibold text-purple-700 mb-4 flex items-center gap-2"><i class="fas fa-user-shield"></i>  Libririan (Kate Sario)</h1>
+
+		<!-- STUDENT (Nested) -->
+		<div class="pl-6 border-l-4 border-purple-300 mt-4">
+			<h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-2">Vince Gacus - (Data Encoder)</h3>
+			<ul class="space-y-2 text-gray-700 text-sm">
+				<li>✔ Enconding of Books</li>
+				<li>✔ Encoding of Collections</li>
+				<li>✔ Assigning of Prorams in every Books</li>
+				<li>✔ Library Clubs</li>
+				<li>✖ Cannot modify book data</li>
+			</ul>
+		</div>
+		<div class="pl-6 border-l-4 border-purple-300 mt-4">
+			<h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2 mb-2">Maria Olmo - (Transaction Encoder)</h3>
+			<ul class="space-y-2 text-gray-700 text-sm">
+				<li>✔ View available books</li>
+				<li>✔ Check own borrowing history</li>
+				<li>✔ View overdue books (self only)</li>
+				<li>✖ Cannot edit or borrow directly</li>
+				<li>✖ Cannot modify book data</li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- FOOTER -->
+	<div class="text-center text-xs text-gray-400 mt-8">Library System • Permissions Manual • Updated {{ now|date:"Y" }}</div>
+</div>
+{% endblock %}

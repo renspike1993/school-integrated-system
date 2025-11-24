@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}Borrow Books{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-3 rounded-md shadow flex items-center gap-3">
+    <i class="fas fa-book text-2xl"></i>
+    <div>
+        <h1 class="text-lg font-semibold">Borrow Books</h1>
+        <p class="text-xs opacity-90">
+            Borrower: {{ student.last_name }}, {{ student.first_name }}
+        </p>
+    </div>
+</div>
+
+<!-- Main Card -->
+<div class="bg-white p-4 rounded-md shadow mt-4">
+
+    <!-- Search -->
+    <form method="get" class="flex gap-2 mb-4">
+        <input 
+            type="text" 
+            name="q"
+            placeholder="Search book title, author, ISBN..."
+            value="{{ q }}"
+            class="w-full border border-gray-300 px-3 py-1.5 text-sm rounded focus:ring focus:ring-blue-500/40 focus:border-blue-500"
+        >
+        <button class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+            Search
+        </button>
+    </form>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 border rounded-md">
+            <thead class="bg-gray-50 text-xs">
+                <tr>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Title</th>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Author</th>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Year</th>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">ISBN</th>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Barcode</th>
+                    <th class="px-4 py-2 text-left font-semibold text-gray-600 uppercase">Action</th>
+                </tr>
+            </thead>
+
+            <tbody class="bg-white divide-y divide-gray-200 text-sm">
+
+                {% for book in page_obj %}
+                    {% comment %} Filter only available barcodes {% endcomment %}
+                    {% for barcode in book.barcodes.all %}
+                        {% if barcode.id not in borrowed_barcodes %}
+                        <tr>
+                            <td class="px-4 py-2">{{ book.title }}</td>
+                            <td class="px-4 py-2">{{ book.author }}</td>
+                            <td class="px-4 py-2">{{ book.publication_year }}</td>
+                            <td class="px-4 py-2">{{ book.isbn }}</td>
+
+                            <td class="px-4 py-2">
+                                <span class="font-medium text-xs">{{ barcode.barcode }}</span>
+                                <span class="ml-1 px-2 py-0.5 rounded-full text-[10px] bg-green-100 text-green-700">
+                                    Available
+                                </span>
+                            </td>
+
+                            <td class="px-4 py-2">
+                                <a href="{% url 'borrow_book' student.id book.id barcode.id %}"
+                                   class="w-full px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 block text-center">
+                                    Borrow
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-2 text-center text-gray-400 text-sm">
+                            No barcodes available
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-4 py-2 text-center text-gray-500 text-sm">No books found.</td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4 flex justify-center">
+        <ul class="inline-flex items-center space-x-1 text-sm">
+            {% if page_obj.has_previous %}
+            <li>
+                <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}"
+                   class="px-2 py-1 border rounded hover:bg-gray-100">
+                    Previous
+                </a>
+            </li>
+            {% else %}
+            <li>
+                <span class="px-2 py-1 border rounded text-gray-400 bg-gray-100 cursor-not-allowed">Previous</span>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                <li>
+                    <span class="px-2 py-1 border rounded bg-blue-600 text-white">{{ num }}</span>
+                </li>
+                {% else %}
+                <li>
+                    <a href="?page={{ num }}&q={{ q }}" 
+                       class="px-2 py-1 border rounded hover:bg-gray-100">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li>
+                <a href="?page={{ page_obj.next_page_number }}&q={{ q }}"
+                   class="px-2 py-1 border rounded hover:bg-gray-100">Next</a>
+            </li>
+            {% else %}
+            <li>
+                <span class="px-2 py-1 border rounded text-gray-400 bg-gray-100 cursor-not-allowed">Next</span>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Back -->
+    <a href="{% url 'student_detail' student.id %}" 
+       class="mt-4 inline-block px-3 py-1.5 text-sm bg-gray-700 text-white rounded hover:bg-gray-800">
+        Back
+    </a>
+
+</div>
+
+{% endblock %}

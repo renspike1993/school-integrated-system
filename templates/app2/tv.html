@@ -1,0 +1,662 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moist Library Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                        accent: '#06b6d4',
+                        dark: '#0f172a',
+                        'dark-card': '#1e293b',
+                        'dark-card-hover': '#2d3748'
+                    },
+                    fontFamily: {
+                        'serif': ['Georgia', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .library-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .book-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .flip-card {
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        .glass-effect {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(135deg, #1e293b, #1e293b) padding-box,
+                linear-gradient(135deg, #3b82f6, #8b5cf6) border-box;
+            border: 1px solid transparent;
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-bar {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .notification-dot {
+            animation: pulse-slow 2s infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-dark text-gray-200 min-h-screen p-4 md:p-6">
+    <div class="max-w-7xl mx-auto">
+
+
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Profile Panel -->
+            <div class="col-span-12 lg:col-span-3 space-y-6">
+                <div class="gradient-border rounded-2xl p-6 shadow-xl animate-fade-in">
+                    <div class="flex flex-col items-center">
+                        <div class="relative">
+                            <img src="{% static 'images/moist.png' %}"
+                                class="w-32 h-32 rounded-full border-4 border-primary shadow-lg object-cover"
+                                alt="Profile Picture" />
+                            <span
+                                class="absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-dark-card"></span>
+                        </div>
+
+                        <h2 class="mt-4 text-xl font-bold">Renspike II</h2>
+                        <p class="text-gray-400 text-sm">IT Department</p>
+
+                        <div class="mt-6 w-full space-y-4">
+                            <div class="glass-effect p-4 rounded-xl transition duration-300 hover:bg-dark-card-hover">
+                                <p class="text-gray-400 text-sm">Employee ID:</p>
+                                <p class="font-medium">IT-00000</p>
+                            </div>
+
+                            <div class="glass-effect p-4 rounded-xl transition duration-300 hover:bg-dark-card-hover">
+                                <p class="text-gray-400 text-sm">Department</p>
+                                <p class="font-medium">Information Technology</p>
+                            </div>
+
+                            <div class="glass-effect p-4 rounded-xl transition duration-300 hover:bg-dark-card-hover">
+                                <p class="text-gray-400 text-sm">Status</p>
+                                <p class="font-medium text-green-400">Active</p>
+                            </div>
+
+                            <div class="glass-effect p-4 rounded-xl transition duration-300 hover:bg-dark-card-hover">
+                                <p class="text-gray-400 text-sm">Email</p>
+                                <p class="font-medium break-all text-sm">cold.renspike@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-dark-card rounded-2xl p-6 shadow-xl border border-gray-800 animate-slide-up">
+                    <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button
+                            class="bg-primary/20 hover:bg-primary/30 text-primary p-3 rounded-xl transition duration-300 flex flex-col items-center hover:scale-105">
+                            <i class="fas fa-calendar-alt mb-1 text-lg"></i>
+                            <span class="text-xs mt-1">Schedule</span>
+                        </button>
+                        <button
+                            class="bg-secondary/20 hover:bg-secondary/30 text-secondary p-3 rounded-xl transition duration-300 flex flex-col items-center hover:scale-105">
+                            <i class="fas fa-book mb-1 text-lg"></i>
+                            <span class="text-xs mt-1">Catalog</span>
+                        </button>
+                        <button
+                            class="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 p-3 rounded-xl transition duration-300 flex flex-col items-center hover:scale-105">
+                            <i class="fas fa-chart-bar mb-1 text-lg"></i>
+                            <span class="text-xs mt-1">Reports</span>
+                        </button>
+                        <button
+                            class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 p-3 rounded-xl transition duration-300 flex flex-col items-center hover:scale-105">
+                            <i class="fas fa-cog mb-1 text-lg"></i>
+                            <span class="text-xs mt-1">Settings</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Library Hours -->
+                <div class="bg-dark-card rounded-2xl p-6 shadow-xl border border-gray-800 animate-slide-up">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-clock text-accent mr-3"></i>
+                        Library Hours
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between py-2 border-b border-gray-700">
+                            <span>Monday - Friday</span>
+                            <span class="font-medium">8:00 AM - 6:00 PM</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span>Saturday</span>
+                            <span class="font-medium">8:00 AM - 12:00 NN</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-primary/20 rounded-xl border border-primary/30">
+                        <h4 class="font-bold text-primary mb-1">Special Notice</h4>
+                        <p class="text-sm">Extended hours during exam periods</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-span-12 lg:col-span-9 space-y-6">
+
+                <!-- Dashboard Content -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- New Arrival -->
+                    <div class="bg-dark-card rounded-2xl p-6 shadow-xl border border-gray-800 animate-fade-in">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold library-font"> New Arrivals</h2>
+                            <div class="flex space-x-2">
+                                <button onclick="prevSlide()"
+                                    class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition duration-300 hover:scale-105">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button onclick="nextSlide()"
+                                    class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition duration-300 hover:scale-105">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="relative overflow-hidden rounded-xl">
+                            <!-- Carousel wrapper -->
+                            <div id="carousel" class="flex transition-all duration-500 ease-in-out">
+
+                                <div class="w-full flex-shrink-0 relative">
+                                    <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80"
+                                        class="w-full h-64 md:h-80 object-cover rounded-xl" />
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-xl">
+                                        <h3 class="text-xl font-bold">Computer Science Collection</h3>
+                                        <p class="text-gray-300">Most popular programming and technology books</p>
+                                    </div>
+                                </div>
+
+                                <div class="w-full flex-shrink-0 relative">
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80"
+                                        class="w-full h-64 md:h-80 object-cover rounded-xl" />
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-xl">
+                                        <h3 class="text-xl font-bold">Literature & Fiction</h3>
+                                        <p class="text-gray-300">Classic novels and contemporary fiction favorites</p>
+                                    </div>
+                                </div>
+
+                                <div class="w-full flex-shrink-0 relative">
+                                    <img src="https://images.unsplash.com/photo-1553729459-efe14ef6055d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80"
+                                        class="w-full h-64 md:h-80 object-cover rounded-xl" />
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-xl">
+                                        <h3 class="text-xl font-bold">Business & Economics</h3>
+                                        <p class="text-gray-300">Essential reads for business students and professionals
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Indicators -->
+                            <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+                                <span class="w-2 h-2 rounded-full bg-white/50 cursor-pointer"
+                                    onclick="goToSlide(0)"></span>
+                                <span class="w-2 h-2 rounded-full bg-white/50 cursor-pointer"
+                                    onclick="goToSlide(1)"></span>
+                                <span class="w-2 h-2 rounded-full bg-white/50 cursor-pointer"
+                                    onclick="goToSlide(2)"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Carousel -->
+                    <div class="bg-dark-card rounded-2xl p-6 shadow-xl border border-gray-800 animate-fade-in">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold library-font"> Most Borrowed Books</h2>
+                            <div class="flex space-x-2">
+                                <button onclick="prevSlide()"
+                                    class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition duration-300 hover:scale-105">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button onclick="nextSlide()"
+                                    class="bg-gray-800 hover:bg-gray-700 p-2 rounded-full transition duration-300 hover:scale-105">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="relative overflow-hidden rounded-xl">
+                            <!-- Carousel wrapper -->
+                            <div id="carousel" class="flex transition-all duration-500 ease-in-out">
+
+                                <div class="w-full flex-shrink-0 relative">
+                                    <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80"
+                                        class="w-full h-64 md:h-80 object-cover rounded-xl" />
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-xl">
+                                        <h3 class="text-xl font-bold">Computer Science Collection</h3>
+                                        <p class="text-gray-300">Most popular programming and technology books</p>
+                                    </div>
+                                </div>
+
+                                <div class="w-full flex-shrink-0 relative">
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80"
+                                        class="w-full h-64 md:h-80 object-cover rounded-xl" />
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-xl">
+                                        <h3 class="text-xl font-bold">Literature & Fiction</h3>
+                                        <p class="text-gray-300">Classic novels and contemporary fiction favorites</p>
+                                    </div>
+                                </div>
+
+                                <div class="w-full flex-shrink-0 relative">
+                                    <img src="https://images.unsplash.com/photo-1553729459-efe14ef6055d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80"
+                                        class="w-full h-64 md:h-80 object-cover rounded-xl" />
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-xl">
+                                        <h3 class="text-xl font-bold">Business & Economics</h3>
+                                        <p class="text-gray-300">Essential reads for business students and professionals
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Indicators -->
+                            <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+                                <span class="w-2 h-2 rounded-full bg-white/50 cursor-pointer"
+                                    onclick="goToSlide(0)"></span>
+                                <span class="w-2 h-2 rounded-full bg-white/50 cursor-pointer"
+                                    onclick="goToSlide(1)"></span>
+                                <span class="w-2 h-2 rounded-full bg-white/50 cursor-pointer"
+                                    onclick="goToSlide(2)"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Library Stats -->
+                    <div class="bg-dark-card rounded-2xl p-6 shadow-xl border border-gray-800 animate-slide-up">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-chart-bar text-primary mr-2"></i>
+                            Library Statistics
+                        </h3>
+                        <div class="space-y-4">
+                            <div
+                                class="stat-card p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition duration-300">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-medium">Borrowed Books</h4>
+                                    <span class="text-xs bg-amber-500/20 text-amber-400 px-2 py-1 rounded-full">240
+                                        Books</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">From 7 different Programs</p>
+                                <div class="w-full bg-gray-700 rounded-full h-2 progress-bar">
+                                    <div class="bg-amber-400 h-2 rounded-full" style="width: 80%"></div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="stat-card p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition duration-300">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-medium">Available E-Books</h4>
+                                    <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">4,230
+                                        Books</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">From institution and third party providers</p>
+                                <div class="w-full bg-gray-700 rounded-full h-2 progress-bar">
+                                    <div class="bg-blue-400 h-2 rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="stat-card p-3 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition duration-300">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h4 class="font-medium">Available Physical Books</h4>
+                                    <span
+                                        class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">4,321</span>
+                                </div>
+                                <p class="text-sm text-gray-400 mb-2">From Moist Library</p>
+                                <div class="w-full bg-gray-700 rounded-full h-2 progress-bar">
+                                    <div class="bg-green-400 h-2 rounded-full" style="width: 30%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Featured Books -->
+                    <div class="bg-dark-card rounded-2xl p-6 shadow-xl border border-gray-800 animate-slide-up">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-book-open text-amber-400 mr-2"></i>
+                            Featured Books
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flip-card h-32">
+                                <div class="flip-card-inner h-full">
+                                    <div
+                                        class="flip-card-front book-card bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-xl p-4 border border-blue-800/30 flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-1">Clean Code</h4>
+                                            <p class="text-gray-400 text-sm">Robert C. Martin</p>
+                                        </div>
+                                        <div class="flex justify-between items-end">
+                                            <span
+                                                class="text-xs bg-blue-500/30 text-blue-300 px-2 py-1 rounded">Programming</span>
+                                            <i class="fas fa-book text-blue-400"></i>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flip-card-back book-card bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-xl p-4 border border-blue-800/30 flex flex-col justify-between">
+                                        <div>
+                                            <p class="text-sm mb-2">A handbook of agile software craftsmanship with
+                                                practical advice.</p>
+                                            <div class="flex items-center text-sm text-gray-300">
+                                                <i class="fas fa-star text-amber-400 mr-1"></i>
+                                                <span>4.7/5</span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            class="bg-blue-600 hover:bg-blue-700 text-white py-1 rounded-lg text-xs transition duration-300 hover:scale-105">
+                                            Check Availability
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flip-card h-32">
+                                <div class="flip-card-inner h-full">
+                                    <div
+                                        class="flip-card-front book-card bg-gradient-to-br from-amber-900/30 to-red-900/30 rounded-xl p-4 border border-amber-800/30 flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-1">The Pragmatic Programmer</h4>
+                                            <p class="text-gray-400 text-sm">Andrew Hunt</p>
+                                        </div>
+                                        <div class="flex justify-between items-end">
+                                            <span
+                                                class="text-xs bg-amber-500/30 text-amber-300 px-2 py-1 rounded">Software</span>
+                                            <i class="fas fa-laptop-code text-amber-400"></i>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flip-card-back book-card bg-gradient-to-br from-amber-900/50 to-red-900/50 rounded-xl p-4 border border-amber-800/30 flex flex-col justify-between">
+                                        <div>
+                                            <p class="text-sm mb-2">Your journey to mastery, from journeyman to master.
+                                            </p>
+                                            <div class="flex items-center text-sm text-gray-300">
+                                                <i class="fas fa-star text-amber-400 mr-1"></i>
+                                                <span>4.8/5</span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            class="bg-amber-600 hover:bg-amber-700 text-white py-1 rounded-lg text-xs transition duration-300 hover:scale-105">
+                                            Check Availability
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flip-card h-32">
+                                <div class="flip-card-inner h-full">
+                                    <div
+                                        class="flip-card-front book-card bg-gradient-to-br from-green-900/30 to-teal-900/30 rounded-xl p-4 border border-green-800/30 flex flex-col justify-between">
+                                        <div>
+                                            <h4 class="font-bold text-lg mb-1">Design Patterns</h4>
+                                            <p class="text-gray-400 text-sm">Gang of Four</p>
+                                        </div>
+                                        <div class="flex justify-between items-end">
+                                            <span class="text-xs bg-green-500/30 text-green-300 px-2 py-1 rounded">CS
+                                                Theory</span>
+                                            <i class="fas fa-shapes text-green-400"></i>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flip-card-back book-card bg-gradient-to-br from-green-900/50 to-teal-900/50 rounded-xl p-4 border border-green-800/30 flex flex-col justify-between">
+                                        <div>
+                                            <p class="text-sm mb-2">Elements of reusable object-oriented software.</p>
+                                            <div class="flex items-center text-sm text-gray-300">
+                                                <i class="fas fa-star text-amber-400 mr-1"></i>
+                                                <span>4.6/5</span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            class="bg-green-600 hover:bg-green-700 text-white py-1 rounded-lg text-xs transition duration-300 hover:scale-105">
+                                            Check Availability
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-dark-card rounded-2xl p-6 shadow-xl border border-gray-800 animate-fade-in">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center">
+                        <i class="fas fa-history text-purple-400 mr-3"></i>
+                        Recent Library Activity
+                    </h3>
+                    <div class="space-y-4">
+                        <div
+                            class="flex items-center p-4 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition duration-300 hover:scale-[1.01]">
+                            <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-book-open text-blue-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium">New Book Acquisition</h4>
+                                <p class="text-sm text-gray-400">25 new computer science books added to collection</p>
+                            </div>
+                            <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">Today</span>
+                        </div>
+
+                        <div
+                            class="flex items-center p-4 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition duration-300 hover:scale-[1.01]">
+                            <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-users text-green-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium">Library Workshop</h4>
+                                <p class="text-sm text-gray-400">Research skills workshop completed with 45 attendees
+                                </p>
+                            </div>
+                            <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">2 days
+                                ago</span>
+                        </div>
+
+                        <div
+                            class="flex items-center p-4 bg-gray-800/50 rounded-xl hover:bg-gray-800/70 transition duration-300 hover:scale-[1.01]">
+                            <div class="w-12 h-12 bg-amber-500/20 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-sync-alt text-amber-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium">System Update</h4>
+                                <p class="text-sm text-gray-400">Library management system updated to version 2.4</p>
+                            </div>
+                            <span class="text-xs bg-amber-500/20 text-amber-400 px-2 py-1 rounded-full">1 week
+                                ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-gray-500 text-sm">
+        <p>Moist Library • Knowledge Avenue • library@moist.edu</p>
+        <p class="mt-2">Follow us:
+            <a href="#" class="text-accent hover:text-white transition duration-300 mx-1"><i
+                    class="fab fa-twitter"></i></a>
+            <a href="#" class="text-accent hover:text-white transition duration-300 mx-1"><i
+                    class="fab fa-facebook"></i></a>
+            <a href="#" class="text-accent hover:text-white transition duration-300 mx-1"><i
+                    class="fab fa-instagram"></i></a>
+        </p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('current-time').textContent = timeString;
+        }
+
+        // Update time immediately and then every minute
+        updateTime();
+        setInterval(updateTime, 60000);
+
+        // Carousel functionality
+        let index = 0;
+        const carousel = document.getElementById("carousel");
+        const total = carousel.children.length;
+        const indicators = document.querySelectorAll('.absolute.bottom-4 span');
+
+        function updateSlide() {
+            carousel.style.transform = `translateX(-${index * 100}%)`;
+
+            // Update indicators
+            indicators.forEach((indicator, i) => {
+                if (i === index) {
+                    indicator.classList.remove('bg-white/50');
+                    indicator.classList.add('bg-white');
+                } else {
+                    indicator.classList.remove('bg-white');
+                    indicator.classList.add('bg-white/50');
+                }
+            });
+        }
+
+        function nextSlide() {
+            index = (index + 1) % total;
+            updateSlide();
+        }
+
+        function prevSlide() {
+            index = (index - 1 + total) % total;
+            updateSlide();
+        }
+
+        function goToSlide(slideIndex) {
+            index = slideIndex;
+            updateSlide();
+        }
+
+        // Auto slide every 8 seconds
+        setInterval(nextSlide, 8000);
+
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards for animation
+        document.querySelectorAll('.bg-dark-card').forEach((card) => {
+            observer.observe(card);
+        });
+    </script>
+
+</body>
+
+</html>
