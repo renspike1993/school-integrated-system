@@ -9,10 +9,18 @@ from docx import Document
 import PyPDF2
 from .models import UploadedDocument
 
-
 def index(request):
     error = None
-    upload_info = None  # <-- For showing only the latest upload
+    upload_info = None  # latest upload
+
+    # Price per page in PHP
+    price_map = {
+        "Long": 5,
+        "Short": 3,
+        "A4": 4,
+        # default price for custom sizes
+        "Custom": 6
+    }
 
     if request.method == "POST" and request.FILES.get("file"):
         uploaded_file = request.FILES["file"]
@@ -20,24 +28,23 @@ def index(request):
         file_size = uploaded_file.size
 
         try:
-            # Save file
             fs = FileSystemStorage()
             saved_path = fs.save(uploaded_file.name, uploaded_file)
             full_path = fs.path(saved_path)
             file_url = fs.url(saved_path)
 
-            # Initialize defaults
+            # Defaults
             page_count = None
             paper_size = None
 
-            # --- PROCESS PDF ---
+            # Process PDF
             if file_name.lower().endswith(".pdf"):
                 with open(full_path, "rb") as pdf:
                     reader = PyPDF2.PdfReader(pdf)
                     page_count = len(reader.pages)
                     paper_size = detect_pdf_paper_size(reader)
 
-            # --- PROCESS DOCX ---
+            # Process DOCX
             elif file_name.lower().endswith(".docx"):
                 document = Document(full_path)
                 text = " ".join([p.text for p in document.paragraphs])
@@ -48,7 +55,6 @@ def index(request):
             else:
                 error = "Unsupported file type."
 
-            # Save to DB only if no error
             if error is None:
                 UploadedDocument.objects.create(
                     user=request.user,
@@ -59,29 +65,36 @@ def index(request):
                     paper_size=paper_size,
                 )
 
-                # Data to display immediately
+                # Determine price per page
+                key = paper_size if paper_size in price_map else "Custom"
+                total_amount = page_count * price_map[key]
+
                 upload_info = {
                     "filename": file_name,
                     "file_url": file_url,
                     "page_count": page_count,
                     "paper_size": paper_size,
                     "file_size": file_size,
+                    "total_amount": total_amount,
                 }
 
         except Exception as e:
             error = f"Error: {e}"
 
-    # ALWAYS load all documents
     documents = UploadedDocument.objects.filter(
         user=request.user
     ).order_by("-uploaded_at")
 
+    # Add total_amount for each document
+    for doc in documents:
+        key = doc.paper_size if doc.paper_size in price_map else "Custom"
+        doc.total_amount = doc.page_count * price_map[key]
+
     return render(request, "app3/index.html", {
-        "upload_info": upload_info,  # newest uploaded file summary
-        "documents": documents,  # list of all uploaded files
+        "upload_info": upload_info,
+        "documents": documents,
         "error": error,
     })
-
 
 
 
@@ -113,18 +126,16 @@ import os
 import subprocess
 from django.http import HttpResponse
 from .models import UploadedDocument
+import win32print
+import win32api
 
 def print_document(request, doc_id):
-    try:
-        doc = UploadedDocument.objects.get(id=doc_id, user=request.user)
-    except UploadedDocument.DoesNotExist:
-        return HttpResponse("Document not found.", status=404)
-
+    doc = UploadedDocument.objects.get(id=doc_id, user=request.user)
     file_path = doc.file.path
 
-    # Windows printing sample (prints default printer)
     try:
-        os.startfile(file_path, "print")
+        printer_name = win32print.GetDefaultPrinter()
+        win32api.ShellExecute(0, "print", file_path, f'/d:"{printer_name}"', ".", 0)
         return HttpResponse("Printing sent to printer.")
     except Exception as e:
         return HttpResponse(f"Print error: {e}", status=500)

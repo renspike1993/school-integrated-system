@@ -1,115 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Upload & Count Pages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuVend - Document Page Counter</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         @media print {
             .no-print {
                 display: none !important;
             }
         }
+        
+        /* Vending machine inspired styles */
+        .vending-bg {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+        }
+        
+        .vending-panel {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+        
+        .vending-button {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 0 #1a5276;
+        }
+        
+        .vending-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #1a5276;
+        }
+        
+        .vending-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1a5276;
+        }
+        
+        .file-input-area {
+            border: 3px dashed #3498db;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input-area:hover, .file-input-area.dragover {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-color: #2980b9;
+        }
+        
+        .document-item {
+            background: linear-gradient(145deg, #ecf0f1, #bdc3c7);
+            border-radius: 12px;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+        
+        .document-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-active {
+            background-color: #2ecc71;
+            box-shadow: 0 0 8px #2ecc71;
+        }
+        
+        .result-display {
+            background: linear-gradient(145deg, #1abc9c, #16a085);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen p-4 sm:p-10">
-
-    <div class="w-full max-w-2xl mx-auto bg-white shadow p-4 sm:p-6 rounded">
-        <h1 class="text-lg sm:text-xl font-bold mb-4">Upload PDF / DOCX and Count Pages</h1>
-
-        <!-- Upload Form -->
-        <form method="POST" enctype="multipart/form-data" class="mb-6 no-print">
-            {% csrf_token %}
-            <input type="file" name="file" accept=".pdf,.docx"
-                class="border p-2 w-full rounded mb-3 text-sm sm:text-base" required>
-
-            <button class="bg-blue-600 text-white w-full sm:w-auto px-4 py-2 rounded hover:bg-blue-700 text-sm sm:text-base">
-                Upload & Count
-            </button>
-        </form>
-
-        <!-- Upload Result -->
-        {% if page_count %}
-        <div class="p-4 bg-gray-50 border rounded mb-4 text-sm sm:text-base">
-            <p class="font-semibold">
-                Page Count:
-                <span class="text-blue-600">{{ page_count }}</span>
+<body class="vending-bg min-h-screen p-4 sm:p-6">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-6 sm:mb-8">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">
+                <i class="fas fa-file-import mr-2"></i>Angelou Vendo Printer
+            </h1>
+            <p class="text-white text-opacity-80 text-sm sm:text-base">
+                Upload documents and count pages instantly
             </p>
+        </header>
 
-            {% if paper_size %}
-            <p class="font-semibold mt-1">
-                Paper Size:
-                <span class="text-green-600">{{ paper_size }}</span>
-            </p>
-            {% endif %}
+        <!-- Main Vending Panel -->
+        <div class="vending-panel p-5 sm:p-8 mb-6">
+            <!-- Upload Section -->
+            <div class="mb-6 no-print">
+                <h2 class="text-lg sm:text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-upload mr-2 text-blue-400"></i> Angelou Vendo Printer
+                </h2>
+                
+                <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                    {% csrf_token %}
+                    
+                    <div class="file-input-area p-6 text-center cursor-pointer mb-4" id="dropArea">
+                        <input type="file" name="file" id="fileInput" accept=".pdf,.docx" 
+                               class="hidden" required>
+                        <i class="fas fa-cloud-upload-alt text-4xl text-blue-400 mb-3"></i>
+                        <p class="font-medium mb-1">Drag & drop your file here</p>
+                        <p class="text-sm text-gray-300">or click to browse</p>
+                        <p class="text-xs text-gray-400 mt-2">Supports: PDF, DOCX</p>
+                    </div>
+                    
+                    <div id="fileInfo" class="hidden mb-4 p-3 bg-blue-900 bg-opacity-30 rounded-lg">
+                        <p class="text-sm flex items-center">
+                            <i class="fas fa-file mr-2 text-blue-400"></i>
+                            <span id="fileName">No file selected</span>
+                        </p>
+                    </div>
+                    
+                    <button type="submit" class="vending-button w-full py-3 font-bold text-lg flex items-center justify-center">
+                        <i class="fas fa-calculator mr-2"></i> Count Pages
+                    </button>
+                </form>
+            </div>
 
-            {% if file_url %}
-            <p class="mt-2">
-                <a href="{{ file_url }}" target="_blank" class="text-blue-500 underline">
-                    View Uploaded File
-                </a>
-            </p>
+            <!-- Result Display -->
+            {% if page_count %}
+            <div class="result-display p-4 sm:p-5 mb-6">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-chart-bar text-white text-xl mr-2"></i>
+                    <h3 class="text-lg font-bold">Document Analysis</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                        <p class="text-sm text-white text-opacity-80">Page Count</p>
+                        <p class="text-xl font-bold">{{ page_count }}</p>
+                    </div>
+                    
+                    {% if paper_size %}
+                    <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                        <p class="text-sm text-white text-opacity-80">Paper Size</p>
+                        <p class="text-xl font-bold">{{ paper_size }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if file_url %}
+                <div class="mt-4 pt-3 border-t border-white border-opacity-20">
+                    <a href="{{ file_url }}" target="_blank" 
+                       class="inline-flex items-center text-white font-medium hover:underline">
+                        <i class="fas fa-external-link-alt mr-2"></i> View Uploaded File
+                    </a>
+                </div>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
-        {% endif %}
 
-        <!-- Uploaded Documents Table -->
+        <!-- Uploaded Documents Section -->
         {% if documents %}
-        <h2 class="text-base sm:text-lg font-semibold mb-2">Uploaded Documents</h2>
+        <div class="vending-panel p-5 sm:p-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg sm:text-xl font-bold flex items-center">
+                    <i class="fas fa-history mr-2 text-green-400"></i> Document History
+                </h2>
+                <span class="status-indicator status-active"></span>
+            </div>
+            
+            <div class="space-y-4">
+                {% for doc in documents %}
+                <div class="document-item p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold truncate">{{ doc.filename }}</h3>
+                            <div class="flex flex-wrap gap-2 mt-2 text-xs">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                    <i class="fas fa-file-alt mr-1"></i> {{ doc.page_count }} pages
+                                </span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                    <i class="fas fa-expand-arrows-alt mr-1"></i> {{ doc.paper_size }}
+                                </span>
 
-        <!-- Make table scrollable on phones -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
-                <thead class="bg-gray-200 text-xs sm:text-sm">
-                    <tr>
-                        <th class="p-2">File</th>
-                        <th class="p-2">Pages</th>
-                        <th class="p-2">Size</th>
-                        <th class="p-2">Paper</th>
-                        <th class="p-2">Uploaded</th>
-                        <th class="p-2">Action</th>
-                    </tr>
-                </thead>
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                                    <i class="fas fa-weight-hanging mr-1"></i> ₱{{ doc.total_amount }}</td>
+                                </span>
 
-                <tbody>
-                    {% for doc in documents %}
-                    <tr class="border-b">
-                        <td class="p-2 truncate max-w-[120px] sm:max-w-none">
-                            <a href="{{ doc.file.url }}" class="text-blue-600 underline" target="_blank">
-                                {{ doc.filename }}
+
+								
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-xs text-gray-500">
+                            <i class="far fa-clock mr-1"></i> {{ doc.uploaded_at|date:"Y-m-d H:i" }}
+                        </span>
+                        
+                        <div class="flex space-x-2">
+                            <a href="{{ doc.file.url }}" target="_blank" 
+                               class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs transition-colors">
+                                <i class="fas fa-eye mr-1"></i> View
                             </a>
-                        </td>
-
-                        <td class="p-2 text-center">{{ doc.page_count }}</td>
-                        <td class="p-2 text-center">{{ doc.file_size|filesizeformat }}</td>
-                        <td class="p-2 text-center">{{ doc.paper_size }}</td>
-
-                        <td class="p-2 text-center whitespace-nowrap">
-                            {{ doc.uploaded_at|date:"Y-m-d H:i" }}
-                        </td>
-
-                        <td class="p-2 text-center">
                             <a href="{% url 'print_document' doc.id %}"
-                                class="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs sm:text-sm">
-                                Print
+                               class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-xs transition-colors">
+                                <i class="fas fa-print mr-1"></i> Print
                             </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="p-4 text-center text-gray-500">No uploaded files yet.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-
-            </table>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-gray-400">
+                    <i class="fas fa-inbox text-4xl mb-3"></i>
+                    <p>No uploaded files yet.</p>
+                </div>
+                {% endfor %}
+            </div>
         </div>
         {% endif %}
     </div>
 
+    <script>
+        // File input handling with drag & drop
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const dropArea = document.getElementById('dropArea');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            
+            // Click on drop area to trigger file input
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Update file info when file is selected
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    fileName.textContent = file.name;
+                    fileInfo.classList.remove('hidden');
+                    
+                    // Add file type icon
+                    let fileIcon = 'fa-file';
+                    if (file.name.toLowerCase().endsWith('.pdf')) {
+                        fileIcon = 'fa-file-pdf';
+                    } else if (file.name.toLowerCase().endsWith('.docx')) {
+                        fileIcon = 'fa-file-word';
+                    }
+                    
+                    fileName.innerHTML = `<i class="fas ${fileIcon} mr-2"></i> ${file.name}`;
+                }
+            });
+            
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('dragover');
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            }
+        });
+    </script>
 </body>
-
 </html>
