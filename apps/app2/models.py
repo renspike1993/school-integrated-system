@@ -94,4 +94,3 @@ class BorrowedBook(models.Model):
         return f"{self.book.title} borrowed by {self.borrower.first_name} {self.borrower.last_name}"
 
 
-

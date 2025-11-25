@@ -93,6 +93,9 @@ def book_marc21_view(request, pk):
         'book_fields': book_fields
     })
 
+
+
+
 @login_required
 def book_isbd(request, pk):
     book = get_object_or_404(Book, pk=pk)
